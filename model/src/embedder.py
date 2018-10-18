@@ -27,14 +27,14 @@ class Embedder():
 
     def _get_word_index(self, word):
         try:
-            return self._vocabulary.index(word)
-        except:
+            return self._vocabulary[word]
+        except KeyError:
             return None
 
     def _get_tag_index(self, tag):
         try:
-            return self._tags.index(tag)
-        except:
+            return self._tags[tag]
+        except KeyError:
             return None
 
     def _pad(self, array, max_size):

@@ -29,22 +29,25 @@ if __name__ == '__main__':
     tags = collections.Counter()
 
     print(f'Opening {dataset} ...')
+    df = pd.read_csv(dataset).dropna()
 
-    df = pd.read_csv(dataset)
-    # For safety checks
-    df = df.dropna()
-    # Computing vocabulary
+    print(f'Counting words and tags ...')
     words = (w for s in df['body'].astype(str) for w in s.split())
-    vocabulary.update(words)
-    # Computing tags
     df['tags'] = df['tags'].str.split("|", expand=False)
+    vocabulary.update(words)
     tags.update((t for l in df['tags'] for t in l))
 
-    vocabulary = [w for w, c in vocabulary.most_common(VOCABULARY_SIZE)]
-    tags = [w for w, c in tags.most_common(TAG_SIZE)]
+    vocabulary = {
+        w: i for (w, _), i in zip(vocabulary.most_common(VOCABULARY_SIZE), range(VOCABULARY_SIZE))
+    }
+    tags = {
+        w: i for (w, _), i in zip(tags.most_common(TAG_SIZE), range(TAG_SIZE))
+    }
 
     # Saving data
     with (OUTPUT_PATH / 'vocabulary.pkl').open('wb') as f:
+        print(f'Saving vocabulary to {f.name} ...')
         pickle.dump(file=f, obj=vocabulary)
     with (OUTPUT_PATH / 'tags.pkl').open('wb') as f:
+        print(f'Saving tags to {f.name} ...')
         pickle.dump(file=f, obj=tags)
