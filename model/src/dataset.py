@@ -22,13 +22,26 @@ class Dataset(data.Dataset):
 
         self.pad = pad
         self.pad_length = pad_length
-        self._data = self._open_dataset(dataset, ['body', 'tags'])
         self._embedder = Embedder(vocabulary=vocabulary,
                                   tags=tags)
 
+        self._data = self._open_dataset(dataset, ['body', 'tags'])
+
     def _open_dataset(self, path, columns=None):
+        """
+        Opens CSV dataset and do processing :
+        - parse tag string
+        - filters samples that don't have a valid target
+
+        """
         try:
             df = pd.read_csv(path, index_col=0).dropna()
+
+            valid_tags = set(self._embedder._tags.keys())
+            df['tags'] = (df['tags'].str
+                                    .split('|')
+                                    .apply(lambda l: [t for t in l if t in valid_tags]))
+            df = df[df['tags'].apply(lambda l: len(l)) > 0]
             return df[columns] if columns else df
         except Exception as e:
             raise e
