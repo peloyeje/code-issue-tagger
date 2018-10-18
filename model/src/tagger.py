@@ -37,9 +37,10 @@ class tagger:
 			self.clean_string = preprocess_string(self.clean_string)
 			self.status = 'preprocessed'
 
-	def embed(self)
+	def embed(self, vocabulary = 'XX', tag = 'XX')
 		if self.status == 'preprocessed':
-			self.embedded = embedd(PATH, self.clean_string)
+			embedding = embedder(vocabulary, tag)
+			self.embedded = embedding.embed(self.clean_string)
 			self.status = 'embedded'
 
 	def loadmodel(self):
@@ -50,11 +51,15 @@ class tagger:
 	
 	if self._initialized and isinstance(trained_model, nn.Module):
 		self.model._load_state_dict(trained_model)
-		self.model.eval()
+		self.model.eval()&
 	else:
 		self.model = None
 		print('could not load model')
 
 	def predict(self):
+		try:
+			self.clean()
+			self.prepropress()
+			self.embed()
 		if self.status = 'embedded' and self.model is not None:
 			return self.model(self.embedded)
