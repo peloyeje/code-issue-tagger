@@ -9,10 +9,10 @@ from torch.utils import data
 from .embedder import Embedder
 
 class Dataset(data.Dataset):
-    def __init__(self, vocabulary, tags, dataset):
+    def __init__(self, vocabulary, tags, dataset, pad=True, pad_length=250):
         files = {
-            '_' + k : pathlib.Path(p) for k, p in locals().items()
-            if k is not 'self'
+            k : pathlib.Path(p) for k, p in locals().items()
+            if k not in ['self', 'pad_length']
         }
 
         if any(not f.is_file() for f in files.values()):
@@ -20,12 +20,11 @@ class Dataset(data.Dataset):
         else:
             self.__dict__.update(files)
 
-        self._dataset = self._open_dataset(self._dataset, ['body', 'tags'])
-        self._embedder = Embedder(vocabulary=self._vocabulary,
-                                  tags=self._tags)
-
-    def set_options(self, max_length=250):
-        self.max_length = max_length
+        self.pad = pad
+        self.pad_length = pad_length
+        self._data = self._open_dataset(dataset, ['body', 'tags'])
+        self._embedder = Embedder(vocabulary=vocabulary,
+                                  tags=tags)
 
     def _open_dataset(self, path, columns=None):
         try:
@@ -39,4 +38,5 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         X, y = self._dataset.iloc[index, [0, 1]]
-        return self._embedder.embed(X, y, pad=True, pad_length=self.max_length)
+        return self._embedder.embed(X, y, pad=self.pad,
+                                          pad_length=self.pad_length)
