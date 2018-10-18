@@ -1,15 +1,18 @@
 import torch.nn as nn
-from utils import *
-from embedder import embedder 
+import numpy as np
+from preprocessing.utils import *
+from embedder import Embedder
 
-class tagger:
+class Tagger:
 
-	def __init__(self, string, trained_model, clean_string = None, status = 'raw', model = None):
+	def __init__(self, string, trained_model, vocabulary = './XX/vocabulary.pkl', tag = './XX/tags.pkl', status = 'raw'):
 		self.string = string
-		self.model =  None
 		self.trained_model = trained_model
-		self.clean_string = clean_string
 		self.status = status
+		self.model =  None
+		self.clean_string = None
+		self.output = None
+		self.embedding = Embedder(vocabulary, tag)
 
 	def _initialize(self):
 		if self.model is None :
@@ -17,18 +20,21 @@ class tagger:
 
 	@property
 	def _initialized(self):
-		return self._model is not None
+		return self.model is not None
 
 	@property
 	def _validstring(self):
-		return isinstance(self.string, str):
+		return isinstance(self.string, str)
 	
 	def clean(self):
 		if self._validstring:
-			self.clean_string =  extract_text_content(self.string)
-			self.status = 'clean'
+			try:
+				self.clean_string =  unicodeToAscii(self.string)
+				self.status = 'clean'
+			except:
+				raise ValueError('Not a string')
 
-	def prepropress(self):
+	def preprocess(self):
 		if self.status == 'clean':
 			self.clean_string = preprocess_string(self.clean_string)
 			self.status = 'preprocessed'
@@ -37,29 +43,51 @@ class tagger:
 			self.clean_string = preprocess_string(self.clean_string)
 			self.status = 'preprocessed'
 
-	def embed(self, vocabulary = 'XX', tag = 'XX')
+	def embed(self):
 		if self.status == 'preprocessed':
-			embedding = embedder(vocabulary, tag)
-			self.embedded = embedding.embed(self.clean_string)
+			self.embedded = self.embedding.embed(self.clean_string)
 			self.status = 'embedded'
 
 	def loadmodel(self):
-	try:
-		self._initialize()
-	except:
-		print('could not initialize model')
+		try:
+			self._initialize()
+		except:
+			print('could not initialize model')
+
+		if self._initialized and isinstance(trained_model, nn.Module):
+			self.model._load_state_dict(trained_model)
+			self.model.eval()
+		else:
+			self.model = None
+			print('could not load model')
 	
-	if self._initialized and isinstance(trained_model, nn.Module):
-		self.model._load_state_dict(trained_model)
-		self.model.eval()&
-	else:
-		self.model = None
-		print('could not load model')
+	def decrypt_top_tags(self, n=10):
+		if self.output is not None:
+			output_ids = np.argpartition(self.output, -n)[-n:]
+			top_tags = np.array(self.embedding._tags)[output_ids]
+			top_prob = self.output[output_ids]
+		
+			return dict(zip(top_tags,top_prob))
+
+		else:
+			print('no inference outputs')
+
 
 	def predict(self):
-		try:
-			self.clean()
-			self.prepropress()
-			self.embed()
-		if self.status = 'embedded' and self.model is not None:
-			return self.model(self.embedded)
+		#try:
+		self.clean()
+		#except: 
+		#	print('data cleaning error')
+		#try:
+		self.preprocess()
+		#except: 
+		#	print('data preprocessing error')
+		#try:
+		self.embed()
+		#except: 
+		#	print('data embedding error')
+		#try:
+		self.loadmodel()
+
+		if self.status == 'embedded' and self.model is not None:
+			self.output = self.model(self.embedded)
