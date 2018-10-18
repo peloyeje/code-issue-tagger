@@ -29,7 +29,7 @@ class Dataset(data.Dataset):
 
     def _open_dataset(self, path):
         try:
-            return pd.read_csv(path, index_col=False).dropna()
+            return pd.read_csv(path, index_col=0).dropna()
         except Exception as e:
             raise e
 
