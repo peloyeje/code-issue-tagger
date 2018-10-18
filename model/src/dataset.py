@@ -6,7 +6,7 @@ import pandas as pd
 import torch
 from torch.utils import data
 
-from embedder import Embedder
+from .embedder import Embedder
 
 class Dataset(data.Dataset):
     def __init__(self, vocabulary, tags, dataset):
