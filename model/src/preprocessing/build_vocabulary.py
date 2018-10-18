@@ -13,7 +13,7 @@ import utils
 
 # Variables
 VOCABULARY_SIZE = 10000
-TAG_SIZE = 1000
+TAG_SIZE = 250
 
 OUTPUT_PATH = pathlib.Path(__file__).parent.joinpath('../../output/').resolve()
 OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
