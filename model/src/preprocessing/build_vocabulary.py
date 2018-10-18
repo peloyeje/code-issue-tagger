@@ -20,31 +20,25 @@ OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
 if __name__ == '__main__':
     """
-    The purpose of this script is to build training and test sets
-    from Stack Overflow posts dump.
+    Builds vocabulary list and tag list from input dataset
     """
 
-    source_path = pathlib.Path(sys.argv[1])
-    datasets = list(source_path.glob('full-*.csv.gz'))[:3]
+    dataset = pathlib.Path(sys.argv[1])
 
     vocabulary = collections.Counter()
     tags = collections.Counter()
 
-    for i, dataset in enumerate(datasets):
-        print(f'{i+1}/{len(datasets)} - Opening {dataset} ...')
+    print(f'Opening {dataset} ...')
 
-        df = pd.read_csv(dataset)
-
-        # For safety checks
-        df = df.dropna()
-
-        # Computing vocabulary
-        words = (w for s in df['body'].astype(str) for w in s.split())
-        vocabulary.update(words)
-
-        # Computing tags
-        df['tags'] = df['tags'].str.split("|", expand=False)
-        tags.update((t for l in df['tags'] for t in l))
+    df = pd.read_csv(dataset)
+    # For safety checks
+    df = df.dropna()
+    # Computing vocabulary
+    words = (w for s in df['body'].astype(str) for w in s.split())
+    vocabulary.update(words)
+    # Computing tags
+    df['tags'] = df['tags'].str.split("|", expand=False)
+    tags.update((t for l in df['tags'] for t in l))
 
     vocabulary = [w for w, c in vocabulary.most_common(VOCABULARY_SIZE)]
     tags = [w for w, c in tags.most_common(TAG_SIZE)]
