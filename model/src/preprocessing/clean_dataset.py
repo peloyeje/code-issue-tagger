@@ -29,7 +29,7 @@ if __name__ == '__main__':
     source_path = pathlib.Path(sys.argv[1]).resolve()
     dest_path = OUTPUT_PATH / 'processed.csv.gz'
 
-    datasets = list(source_path.glob('full-*.csv.gz'))[:5]
+    datasets = list(source_path.glob('full-*.csv.gz'))
     output = None
 
     for i, dataset in enumerate(datasets):
