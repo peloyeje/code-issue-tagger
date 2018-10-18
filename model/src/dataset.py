@@ -12,7 +12,7 @@ class Dataset(data.Dataset):
     def __init__(self, vocabulary, tags, dataset, pad=True, pad_length=250):
         files = {
             k : pathlib.Path(p) for k, p in locals().items()
-            if k not in ['self', 'pad_length']
+            if k not in ['self', 'pad', 'pad_length']
         }
 
         if any(not f.is_file() for f in files.values()):
@@ -34,9 +34,9 @@ class Dataset(data.Dataset):
             raise e
 
     def __len__(self):
-        return len(self._dataset)
+        return len(self._data)
 
     def __getitem__(self, index):
-        X, y = self._dataset.iloc[index, [0, 1]]
+        X, y = self._data.iloc[index, [0, 1]]
         return self._embedder.embed(X, y, pad=self.pad,
                                           pad_length=self.pad_length)
