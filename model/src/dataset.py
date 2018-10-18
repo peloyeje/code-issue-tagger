@@ -24,6 +24,9 @@ class Dataset(data.Dataset):
         self._embedder = Embedder(vocabulary=self._vocabulary,
                                   tags=self._tags)
 
+    def set_options(self, max_length=250):
+        self.max_length = max_length
+
     def _open_dataset(self, path):
         try:
             return pd.read_csv(path, index_col=False).dropna()
@@ -35,4 +38,4 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         X, y = self._dataset.iloc[index, [1, 2]]
-        return self._embedder.embed(X, y, pad=True)
+        return self._embedder.embed(X, y, pad=True, pad_length=self.max_length)
