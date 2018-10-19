@@ -1,0 +1,42 @@
+
+body {
+    padding-left: 15px;
+}
+
+
+.content {
+    margin-left: 40px;
+}
+
+
+.page-header {
+    background-color: #ff9400;
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+}
+
+.page-header h1 {
+    color: #ffffff;
+    font-size: 36pt;
+    text-decoration: none;
+}
+
+
+.post {
+    width: 100%;
+}
+
+.text {
+    color: #000000;
+    font-size: 14pt;
+    font-family: TimesNewRoman;
+    text-decoration: none;
+    width: 300px;
+    height: 150px;
+    resize: none;
+    overflow: none;
+    vertical-align: middle
+}
+
+
+
