@@ -2,8 +2,8 @@
 
 import pathlib
 
+import numpy as np
 import pandas as pd
-import torch
 from torch.utils import data
 
 from .embedder import Embedder
@@ -51,5 +51,6 @@ class Dataset(data.Dataset):
 
     def __getitem__(self, index):
         X, y = self._data.iloc[index, [0, 1]]
-        return self._embedder.embed(X, y, pad=self.pad,
+        X, y = self._embedder.embed(X, y, pad=self.pad,
                                           pad_length=self.pad_length)
+        return X.astype(int), y.astype(np.float32)
