@@ -67,9 +67,10 @@ class Tagger:
 	
 	def decrypt_top_tags(self, n=10):
 		if self.output is not None:
-			output_ids = np.argpartition(self.output, -n)[-n:]
-			top_tags = np.array(self.embedding._tags)[output_ids]
-			top_prob = self.output[output_ids]
+			out = self.output.detach().numpy()[0]
+			output_ids = np.argpartition(out, -n)[-n:]
+			top_tags = [list(self.embedding._tags.keys())[i] for i in output_ids]
+			top_prob = out[output_ids]
 		
 			return dict(zip(top_tags,top_prob))
 
@@ -93,4 +94,4 @@ class Tagger:
 		self.loadmodel()
 
 		if self.status == 'embedded' and self.model is not None:
-			self.output = self.model(torch.from_numpy(self.embedded))
+			self.output = self.model(torch.from_numpy(self.embedded).view(1,250))
