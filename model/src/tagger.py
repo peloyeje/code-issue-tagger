@@ -5,9 +5,9 @@ from embedder import Embedder
 
 class Tagger:
 
-	def __init__(self, string, trained_model, vocabulary = './XX/vocabulary.pkl', tag = './XX/tags.pkl', status = 'raw'):
+	def __init__(self, string, trained_model_PATH, vocabulary = './XX/vocabulary.pkl', tag = './XX/tags.pkl', status = 'raw'):
 		self.string = string
-		self.trained_model = trained_model
+		self.trained_model_PATH = trained_model_PATH
 		self.status = status
 		self.model =  None
 		self.clean_string = None
@@ -54,8 +54,8 @@ class Tagger:
 		except:
 			print('could not initialize model')
 
-		if self._initialized and isinstance(trained_model, nn.Module):
-			self.model._load_state_dict(trained_model)
+		if self._initialized and isinstance(self.model, nn.Module):
+			self.model.load_state_dict(self.trained_model_PATH)
 			self.model.eval()
 		else:
 			self.model = None
@@ -71,7 +71,6 @@ class Tagger:
 
 		else:
 			print('no inference outputs')
-
 
 	def predict(self):
 		#try:
