@@ -5,11 +5,12 @@ from tqdm import tqdm
 
 class Trainer:
     def __init__(self, network, optimizer, loss):
-        self._network = network
-        self._optimizer = optimizer
-        self._loss = loss
         self._cuda = torch.cuda.is_available()
         self._device = torch.device("cuda:0" if self._cuda else "cpu")
+
+        self._network = network.cuda() if self._cuda else network
+        self._optimizer = optimizer
+        self._loss = loss
 
     def train(self, input_loader, n_epochs=5):
         self._network.train()
