@@ -1,7 +1,9 @@
+import torch
 import torch.nn as nn
 import numpy as np
 from preprocessing.utils import *
 from embedder import Embedder
+from models.convolution import *
 
 class Tagger:
 
@@ -16,8 +18,8 @@ class Tagger:
 
 	def _initialize(self):
 		if self.model is None :
-			self.model = nn.Module()
-
+			#self.model = nn.Module()
+			self.model = ConvModel(embedding_dim=32, vocab_size=len(self.embedding._vocabulary), seq_len=250)
 	@property
 	def _initialized(self):
 		return self.model is not None
@@ -46,16 +48,18 @@ class Tagger:
 	def embed(self):
 		if self.status == 'preprocessed':
 			self.embedded = self.embedding.embed(self.clean_string)
+			self.embedded = np.asarray(self.embedded, dtype = int)
 			self.status = 'embedded'
 
 	def loadmodel(self):
-		try:
-			self._initialize()
-		except:
-			print('could not initialize model')
+		#try:
+		self._initialize()
+		#except:
+		#	print('could not initialize model')
 
 		if self._initialized and isinstance(self.model, nn.Module):
-			self.model.load_state_dict(self.trained_model_PATH)
+			#self.model = torch.load(self.trained_model_PATH, map_location = 'cpu')
+			self.model.load_state_dict(torch.load(self.trained_model_PATH, map_location='cpu'))
 			self.model.eval()
 		else:
 			self.model = None
@@ -89,4 +93,4 @@ class Tagger:
 		self.loadmodel()
 
 		if self.status == 'embedded' and self.model is not None:
-			self.output = self.model(self.embedded)
+			self.output = self.model(torch.from_numpy(self.embedded))
