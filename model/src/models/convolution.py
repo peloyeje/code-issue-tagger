@@ -18,13 +18,14 @@ class ConvModel(torch.nn.Module):
     def __init__(self,
                  embedding_dim=32,
                  vocab_size=10000,
-                 seq_len=250):
+                 seq_len=250,
+                 target_size=100):
         super(ConvModel,self).__init__()
 
         self._embedding_dim = embedding_dim
         self._vocab_size = vocab_size
         self._seq_len = seq_len
-
+        self._target_size = target_size
         self._max_pool_kernel = 2
 
         self.embeddings = ScaledEmbedding(self._vocab_size, self._embedding_dim)
@@ -33,7 +34,7 @@ class ConvModel(torch.nn.Module):
         self.mp1 = torch.nn.MaxPool1d(self._max_pool_kernel)
         self.mp2 = torch.nn.MaxPool1d(self._max_pool_kernel)
         self.fc1 = torch.nn.Linear(62 * 32, 1024)
-        self.fc2 = torch.nn.Linear(1024, 100)
+        self.fc2 = torch.nn.Linear(1024, self._target_size)
 
     def forward(self, x):
         x = self.embeddings(x).permute(0,2,1)
