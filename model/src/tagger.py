@@ -15,11 +15,23 @@ class Tagger:
 		self.clean_string = None
 		self.output = None
 		self.embedding = Embedder(vocabulary, tag)
+		self.loadmodel()
 
 	def _initialize(self):
 		if self.model is None :
-			#self.model = nn.Module()
 			self.model = ConvModel(embedding_dim=32, vocab_size=len(self.embedding._vocabulary), seq_len=250)
+
+	def loadmodel(self):
+		
+		self._initialize()
+
+		if self._initialized and isinstance(self.model, nn.Module):
+			self.model.load_state_dict(torch.load(self.trained_model_PATH, map_location='cpu'))
+			self.model.eval()
+		else:
+			self.model = None
+			print('could not load model')
+
 	@property
 	def _initialized(self):
 		return self.model is not None
@@ -51,19 +63,6 @@ class Tagger:
 			self.embedded = np.asarray(self.embedded, dtype = int)
 			self.status = 'embedded'
 
-	def loadmodel(self):
-		#try:
-		self._initialize()
-		#except:
-		#	print('could not initialize model')
-
-		if self._initialized and isinstance(self.model, nn.Module):
-			#self.model = torch.load(self.trained_model_PATH, map_location = 'cpu')
-			self.model.load_state_dict(torch.load(self.trained_model_PATH, map_location='cpu'))
-			self.model.eval()
-		else:
-			self.model = None
-			print('could not load model')
 	
 	def decrypt_top_tags(self, n=10):
 		if self.output is not None:
@@ -91,7 +90,5 @@ class Tagger:
 		#except: 
 		#	print('data embedding error')
 		#try:
-		self.loadmodel()
-
 		if self.status == 'embedded' and self.model is not None:
 			self.output = self.model(torch.from_numpy(self.embedded).view(1,250))
