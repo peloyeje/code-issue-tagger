@@ -5,15 +5,12 @@ from preprocessing.utils import *
 from embedder import Embedder
 from models.convolution import *
 
-class Tagger:
-
-	def __init__(self, string, trained_model_PATH, vocabulary = './XX/vocabulary.pkl', tag = './XX/tags.pkl', status = 'raw'):
-		self.string = string
+class Model:
+	def __init__(self, trained_model_PATH, vocabulary = './XX/vocabulary.pkl', tag = './XX/tags.pkl', status = 'raw'):
 		self.trained_model_PATH = trained_model_PATH
-		self.status = status
+		self.vocabulary = vocabulary
+		self.tag =tag
 		self.model =  None
-		self.clean_string = None
-		self.output = None
 		self.embedding = Embedder(vocabulary, tag)
 		self.loadmodel()
 
@@ -35,6 +32,17 @@ class Tagger:
 	@property
 	def _initialized(self):
 		return self.model is not None
+
+class Tagger:
+
+	def __init__(self, string, inp_model):
+		self.string = string
+		self.status = 'raw'
+		self.clean_string = None
+		self.output = None
+		self.embedding = inp_model.embedding
+		self.model = inp_model.model
+
 
 	@property
 	def _validstring(self):
@@ -90,5 +98,5 @@ class Tagger:
 		#except: 
 		#	print('data embedding error')
 		#try:
-		if self.status == 'embedded' and self.model is not None:
+		if self.status == 'embedded':
 			self.output = self.model(torch.from_numpy(self.embedded).view(1,250))
